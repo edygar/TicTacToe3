@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 
 type State = {
   state: "fill-in" | "remove" | "won";
@@ -28,7 +28,7 @@ export default function App() {
             currentPlayer,
             ...prevState.board.slice(pos + 1),
           ],
-          lastRemoved: null,
+          lastRemoved: undefined,
           turn:
             prevState.lastRemoved && prevState.lastRemoved === pos
               ? prevState.turn
@@ -97,27 +97,30 @@ export default function App() {
                 " " +
                 (state().board[index()] || state().turn)
               }
-              disabled={
+              disabled={Boolean(
                 (state().state === "fill-in" && state().board[index()]) ||
-                (state().state === "remove" &&
-                  (state().board[index()] !== state().turn ||
-                    state().lastRemoved === index()))
-              }
+                  (state().state === "remove" &&
+                    (state().board[index()] !== state().turn ||
+                      state().lastRemoved === index()))
+              )}
               onClick={() => play(index())}
             >
               {value.toUpperCase()}
             </button>
           )}
         </For>
-        {state().winner && (
-          <div class="winner">
-            <div class="content">
-              <span class={state().winner}>{state().winner.toUpperCase()}</span>{" "}
-              WON!{" "}
-              <button onClick={() => setState(initialState)}>Play Again</button>
+        <Show when={state().winner}>
+          {(winner) => (
+            <div class="winner">
+              <div class="content">
+                <span class={winner()}>{winner().toUpperCase()}</span> WON!{" "}
+                <button onClick={() => setState(initialState)}>
+                  Play Again
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </Show>
       </div>
     </main>
   );
